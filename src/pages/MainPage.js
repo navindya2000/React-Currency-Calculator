@@ -10,23 +10,24 @@ export default function MainPage() {
   const [amountInSourceCurrency, setAmountInSourceCurrency] = useState(0);
   const [amountInTargetCurrency, setAmountInTargetCurrency] = useState(0);
   const [currencyNames, setCurrencyNames] = useState([]);
+  const [loading, setLoading] = useState(true);
   //handleSubmit method
   const handleSubmit = async (e) => {
     e.preventDefault();
-  try {
-    const response = await axios.get("http://localhost:5000/getCurrencyConversion",{
-      params:{
-        date,
-        sourceCurrency,
-        targetCurrency,
-        amountInSourceCurrency
-      },
-    });
-     //TODO:
-  } catch (error) {
-      console.error(error);
-  }
+    try {
+      const response = await axios.get("http://localhost:5000/convert" , {
+        params: {
+          date,
+          sourceCurrency,
+          targetCurrency,
+          amountInSourceCurrency},
+        });
 
+        setAmountInTargetCurrency(response.data)
+        setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
   //get all Currency using hook
   useEffect(()=>{
@@ -49,7 +50,7 @@ export default function MainPage() {
         <h1 className='text-5xl font-bold text-green-500 lg:mx-32'>Convert Your Currency Today</h1>
 
         <p className='py-6 lg:mx-32'>
-        Convert Your Currency Today my first Project
+        "Convert Your Currency Today" This is my first React Project
         </p>
 
         <div className= "flex flex-col items-center justify-center mt-5">
@@ -92,7 +93,14 @@ export default function MainPage() {
                   </form>
           </section>
         </div>
-        {amountInTargetCurrency}
+        
+        {!loading ?
+        
+        <section className='mt-5 text-xl lg:mx-60'>
+        {amountInSourceCurrency} {currencyNames[sourceCurrency]}is equals to {" "}
+        <span className='font-bold text-green-500'>{amountInTargetCurrency}</span> in {currencyNames[targetCurrency]}
+        </section>
+        : null}
     </div>
   )
 }
