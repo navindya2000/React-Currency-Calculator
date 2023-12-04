@@ -1,11 +1,48 @@
-import React , {useState} from 'react'
+import React , {useEffect, useState} from 'react'
+import axios from 'axios'
 
 export default function MainPage() {
-  //state for the form feilds
+  //state for the form fields
   
   const [date,setDate] = useState(null);
   const [sourceCurrency , setSourceCurrency] = useState("");
   const [targetCurrency , setTargetCurrency] = useState("");
+  const [amountInSourceCurrency, setAmountInSourceCurrency] = useState(0);
+  const [amountInTargetCurrency, setAmountInTargetCurrency] = useState(0);
+  const [currencyNames, setCurrencyNames] = useState([]);
+  //handleSubmit method
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  try {
+    const response = await axios.get("http://localhost:5000/getCurrencyConversion",{
+      params:{
+        date,
+        sourceCurrency,
+        targetCurrency,
+        amountInSourceCurrency
+      },
+    });
+     //TODO:
+  } catch (error) {
+      console.error(error);
+  }
+
+  };
+  //get all Currency using hook
+  useEffect(()=>{
+    const getCurrencyNames =async() => {
+      try{
+        const response = await axios.get(
+          "http://localhost:5000/getAllCurrencies"
+        );
+        setCurrencyNames(response.data);
+      }catch(err){
+        console.error(err);
+      }
+    };
+    console.log(date);
+    getCurrencyNames();
+  },[])
   
   return (
     <div>
@@ -17,27 +54,37 @@ export default function MainPage() {
 
         <div className= "flex flex-col items-center justify-center mt-5">
           <section className='w-full lg:w-1/2'>
-                  <form>
+                  <form onSubmit={handleSubmit}>
                   <div className="mb-4">
-                     <label htmlFor="" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
-                     <input type="date" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                     <label htmlFor={date} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
+                     <input onChange={(e)=>setDate(e.target.value)} type="date" id="date" name="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                      </input>
                   </div>
                   <div className="mb-4">
-                     <label htmlFor="" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Source Currency</label>
-                     <select name='' id='' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-                      <option value="">Select Source Currency</option>
+                     <label htmlFor={sourceCurrency} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Source Currency</label>
+                     <select onChange={(e)=>setSourceCurrency(e.target.value)} name='sourceCurrency' id='sourceCurrency' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                      <option value="sourceCurrency">Select Source Currency</option>
+                      {Object.keys(currencyNames).map((currency)=>(
+                        <option className='p-1' key={currency} value={currency}>
+                          {currencyNames[currency]}
+                        </option>
+                      ))}
                      </select>
                   </div>
                   <div className="mb-4">
-                     <label htmlFor="" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Target Currency</label>
-                     <select name='' id='' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-                      <option value="">Select Target Currency</option>
+                     <label htmlFor={targetCurrency} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Target Currency</label>
+                     <select  onChange={(e)=>setTargetCurrency(e.target.value)} name='targetCurrency' id='targetCurrency' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                      <option value="targetCurrency">Select Target Currency</option>
+                      {Object.keys(currencyNames).map((currency)=>(
+                        <option className='p-1' key={currency} value={currency}>
+                          {currencyNames[currency]}
+                        </option>
+                      ))}
                      </select>
                   </div>
                   <div className="mb-4">
-                     <label htmlFor="" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount in Source Currency</label>
-                     <input type="text" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                     <label htmlFor={amountInSourceCurrency} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount in Source Currency</label>
+                     <input onChange={(e)=>setAmountInSourceCurrency(e.target.value)} type="text" id="amountInSourceCurrency" name = 'amountInSourceCurrency' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                      </input>
                   </div>
 
@@ -45,6 +92,7 @@ export default function MainPage() {
                   </form>
           </section>
         </div>
+        {amountInTargetCurrency}
     </div>
   )
 }
